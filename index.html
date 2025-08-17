@@ -1,0 +1,1784 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>StudyVibe</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+            height: 100vh;
+            overflow: hidden !important;
+            position: relative;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            transition: background 0.8s ease;
+            scrollbar-width: none;
+        }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+            height: 100vh;
+            overflow: hidden !important;
+            position: relative;
+            background: none;
+            transition: background 0.8s ease;
+            scrollbar-width: none;
+        }
+
+        /* Hide all scrollbars globally */
+        body,
+        .todo-widget,
+        .modal,
+        .modal-overlay,
+        .container,
+        .calendar-widget,
+        .timer-container,
+        .timer-controls,
+        .bottom-controls,
+        .left-widgets,
+        .top-controls {
+            scrollbar-width: none;
+        }
+
+        body::-webkit-scrollbar,
+        .todo-widget::-webkit-scrollbar,
+        .modal::-webkit-scrollbar,
+        .modal-overlay::-webkit-scrollbar,
+        .container::-webkit-scrollbar,
+        .calendar-widget::-webkit-scrollbar,
+        .timer-container::-webkit-scrollbar,
+        .timer-controls::-webkit-scrollbar,
+        .bottom-controls::-webkit-scrollbar,
+        .left-widgets::-webkit-scrollbar,
+        .top-controls::-webkit-scrollbar {
+            display: none;
+        }
+
+        /* Background GIFs for each theme */
+        .bg-gif {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100vw;
+            height: 100vh;
+            object-fit: cover;
+            z-index: -1;
+            pointer-events: none;
+            display: none;
+        }
+
+        body.night-city .night-city-gif {
+            display: block;
+        }
+
+        body.cozy-cafe .cozy-cafe-gif {
+            display: block;
+        }
+
+        body.forest-cabin .forest-cabin-gif {
+            display: block;
+        }
+
+        body.minimal-desk .minimal-desk-gif {
+            display: block;
+        }
+
+        body.modal-open::-webkit-scrollbar {
+            display: none;
+        }
+
+        /* Dynamic Backgrounds */
+        body.night-city {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+        }
+
+        body.cozy-cafe {
+            background: linear-gradient(135deg, #ffecd2 0%, #fcb69f 100%);
+        }
+
+        body.forest-cabin {
+            background: linear-gradient(135deg, #a8edea 0%, #fed6e3 100%);
+        }
+
+        body.minimal-desk {
+            background: linear-gradient(135deg, #e3ffe7 0%, #d9e7ff 100%);
+        }
+
+        /* Main Layout */
+        .container {
+            height: 100vh;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            position: relative;
+            padding: 40px;
+        }
+
+        /* Top Controls */
+        .top-controls {
+            position: absolute;
+            top: 30px;
+            right: 30px;
+            display: flex;
+            gap: 12px;
+            z-index: 100;
+        }
+
+        /* Left Widgets */
+        .left-widgets {
+            position: absolute;
+            top: 30px;
+            left: 30px;
+            display: flex;
+            flex-direction: column;
+            gap: 15px;
+            z-index: 100;
+        }
+
+        .widget {
+            background: rgba(255, 255, 255, 0.15);
+            backdrop-filter: blur(20px);
+            border: 0.5px solid rgba(255, 255, 255, 0.2);
+            border-radius: 16px;
+            padding: 16px;
+            color: white;
+            min-width: 200px;
+            opacity: 0;
+            transform: translateX(-20px);
+            animation: slideInWidget 0.8s ease forwards;
+        }
+
+        .widget:nth-child(1) {
+            animation-delay: 0.2s;
+        }
+
+        .widget:nth-child(2) {
+            animation-delay: 0.4s;
+        }
+
+        .widget:nth-child(3) {
+            animation-delay: 0.6s;
+        }
+
+        @keyframes slideInWidget {
+            to {
+                opacity: 1;
+                transform: translateX(0);
+            }
+        }
+
+        /* Clock Widget */
+        .clock-widget {
+            text-align: center;
+        }
+
+        .current-time {
+            font-size: 24px;
+            font-weight: 300;
+            margin-bottom: 4px;
+            font-variant-numeric: tabular-nums;
+        }
+
+        .current-date {
+            font-size: 12px;
+            opacity: 0.7;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+        }
+
+        /* Calendar Widget */
+        .calendar-widget {
+            position: relative;
+        }
+
+        .calendar-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 12px;
+            font-size: 14px;
+            font-weight: 500;
+        }
+
+        .calendar-nav {
+            background: none;
+            border: none;
+            color: white;
+            cursor: pointer;
+            padding: 4px 8px;
+            border-radius: 6px;
+            transition: all 0.2s ease;
+        }
+
+        .calendar-nav:hover {
+            background: rgba(255, 255, 255, 0.2);
+        }
+
+        .calendar-grid {
+            display: grid;
+            grid-template-columns: repeat(7, 1fr);
+            gap: 2px;
+            font-size: 11px;
+        }
+
+        .calendar-day {
+            aspect-ratio: 1;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            border-radius: 4px;
+            transition: all 0.2s ease;
+            cursor: pointer;
+        }
+
+        .calendar-day.today {
+            background: rgba(255, 255, 255, 0.3);
+            font-weight: 600;
+        }
+
+        .calendar-day:hover {
+            background: rgba(255, 255, 255, 0.2);
+        }
+
+        .calendar-day.other-month {
+            opacity: 0.3;
+        }
+
+        /* Todo Widget */
+        .todo-widget {
+            max-height: 200px;
+            overflow-y: auto;
+        }
+
+        .todo-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 12px;
+            font-size: 14px;
+            font-weight: 500;
+        }
+
+        .add-todo-btn {
+            background: none;
+            border: none;
+            color: white;
+            cursor: pointer;
+            font-size: 16px;
+            padding: 4px;
+            border-radius: 6px;
+            transition: all 0.2s ease;
+        }
+
+        .add-todo-btn:hover {
+            background: rgba(255, 255, 255, 0.2);
+            transform: scale(1.1);
+        }
+
+        .todo-list {
+            list-style: none;
+        }
+
+        .todo-item {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            margin-bottom: 8px;
+            padding: 6px 0;
+            border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+            animation: todoSlideIn 0.3s ease;
+        }
+
+        .todo-item:last-child {
+            border-bottom: none;
+        }
+
+        @keyframes todoSlideIn {
+            from {
+                opacity: 0;
+                transform: translateY(-10px);
+            }
+
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        .todo-checkbox {
+            width: 16px;
+            height: 16px;
+            border: 1px solid rgba(255, 255, 255, 0.4);
+            border-radius: 4px;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            transition: all 0.2s ease;
+        }
+
+        .todo-checkbox.checked {
+            background: rgba(255, 255, 255, 0.3);
+            border-color: rgba(255, 255, 255, 0.6);
+        }
+
+        .todo-checkbox.checked::after {
+            content: '✓';
+            font-size: 10px;
+            color: white;
+        }
+
+        .todo-text {
+            flex: 1;
+            font-size: 12px;
+            transition: all 0.2s ease;
+        }
+
+        .todo-text.completed {
+            opacity: 0.5;
+            text-decoration: line-through;
+        }
+
+        .todo-input {
+            background: rgba(255, 255, 255, 0.1);
+            border: 1px solid rgba(255, 255, 255, 0.2);
+            border-radius: 8px;
+            padding: 8px 12px;
+            color: white;
+            font-size: 12px;
+            width: 100%;
+            margin-top: 8px;
+        }
+
+        .todo-input::placeholder {
+            color: rgba(255, 255, 255, 0.5);
+        }
+
+        .todo-input:focus {
+            outline: none;
+            border-color: rgba(255, 255, 255, 0.5);
+            background: rgba(255, 255, 255, 0.15);
+        }
+
+        .control-pill {
+            background: rgba(255, 255, 255, 0.15);
+            backdrop-filter: blur(20px);
+            border: 0.5px solid rgba(255, 255, 255, 0.2);
+            border-radius: 20px;
+            padding: 8px 16px;
+            color: white;
+            font-size: 13px;
+            font-weight: 500;
+            cursor: pointer;
+            transition: all 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+            display: flex;
+            align-items: center;
+            gap: 6px;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .control-pill::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: -100%;
+            width: 100%;
+            height: 100%;
+            background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.2), transparent);
+            transition: left 0.5s ease;
+        }
+
+        .control-pill:hover::before {
+            left: 100%;
+        }
+
+        .control-pill:hover {
+            background: rgba(255, 255, 255, 0.25);
+            transform: translateY(-3px) scale(1.05);
+            box-shadow: 0 8px 25px rgba(0, 0, 0, 0.15);
+        }
+
+        .control-pill.active {
+            background: rgba(255, 255, 255, 0.3);
+            box-shadow: 0 4px 20px rgba(0, 0, 0, 0.1);
+            animation: activeGlow 3s ease-in-out infinite;
+        }
+
+        @keyframes activeGlow {
+
+            0%,
+            100% {
+                box-shadow: 0 4px 20px rgba(255, 255, 255, 0.2);
+            }
+
+            50% {
+                box-shadow: 0 6px 30px rgba(255, 255, 255, 0.4);
+            }
+        }
+
+        /* Timer Display */
+        .timer-container {
+            text-align: center;
+            margin-bottom: 60px;
+            position: relative;
+        }
+
+        .timer-display {
+            font-size: 120px;
+            font-weight: 100;
+            color: white;
+            letter-spacing: -4px;
+            text-shadow: 0 2px 40px rgba(0, 0, 0, 0.1);
+            margin-bottom: 20px;
+            font-variant-numeric: tabular-nums;
+            transition: all 0.3s ease;
+            cursor: pointer;
+            position: relative;
+        }
+
+        .timer-display:hover {
+            transform: scale(1.02);
+            text-shadow: 0 4px 60px rgba(255, 255, 255, 0.2);
+        }
+
+        .timer-display.running {
+            animation: timerPulse 2s ease-in-out infinite;
+        }
+
+        @keyframes timerPulse {
+
+            0%,
+            100% {
+                transform: scale(1);
+            }
+
+            50% {
+                transform: scale(1.01);
+            }
+        }
+
+        .timer-display.urgent {
+            animation: urgentPulse 1s ease-in-out infinite;
+            color: #ff6b6b;
+        }
+
+        @keyframes urgentPulse {
+
+            0%,
+            100% {
+                transform: scale(1);
+                text-shadow: 0 2px 40px rgba(255, 107, 107, 0.3);
+            }
+
+            50% {
+                transform: scale(1.03);
+                text-shadow: 0 6px 80px rgba(255, 107, 107, 0.6);
+            }
+        }
+
+        .timer-label {
+            font-size: 16px;
+            color: rgba(255, 255, 255, 0.7);
+            font-weight: 400;
+            text-transform: uppercase;
+            letter-spacing: 2px;
+            transition: all 0.3s ease;
+        }
+
+        .timer-label.break-mode {
+            color: #4ecdc4;
+            text-shadow: 0 0 20px rgba(78, 205, 196, 0.5);
+        }
+
+        /* Control Buttons */
+        .timer-controls {
+            display: flex;
+            gap: 16px;
+            justify-content: center;
+            margin-bottom: 80px;
+        }
+
+        .timer-btn {
+            background: rgba(255, 255, 255, 0.15);
+            backdrop-filter: blur(20px);
+            border: 0.5px solid rgba(255, 255, 255, 0.2);
+            border-radius: 50px;
+            padding: 16px 32px;
+            color: #222;
+            font-size: 15px;
+            font-weight: 500;
+            cursor: pointer;
+            transition: all 0.2s ease;
+            min-width: 100px;
+        }
+
+        .timer-btn:hover {
+            background: rgba(255, 255, 255, 0.25);
+            transform: translateY(-2px);
+            box-shadow: 0 8px 25px rgba(0, 0, 0, 0.1);
+        }
+
+        .timer-btn:active {
+            transform: translateY(0);
+        }
+
+        .timer-btn.primary {
+            background: rgba(255, 255, 255, 0.9);
+            color: #333;
+        }
+
+        .timer-btn.primary:hover {
+            background: white;
+        }
+
+        /* Bottom Controls */
+        .bottom-controls {
+            position: absolute;
+            bottom: 30px;
+            right: 30px;
+            left: auto;
+            transform: none;
+            display: flex;
+            gap: 20px;
+        }
+
+        .quick-control {
+            background: rgba(255, 255, 255, 0.15);
+            backdrop-filter: blur(20px);
+            border: 0.5px solid rgba(255, 255, 255, 0.2);
+            border-radius: 16px;
+            width: 60px;
+            height: 60px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            cursor: pointer;
+            transition: all 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+            font-size: 22px;
+            color: white;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .quick-control::before {
+            content: '';
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            width: 0;
+            height: 0;
+            background: rgba(255, 255, 255, 0.3);
+            border-radius: 50%;
+            transform: translate(-50%, -50%);
+            transition: all 0.3s ease;
+        }
+
+        .quick-control:hover::before {
+            width: 100%;
+            height: 100%;
+        }
+
+        .quick-control:hover {
+            background: rgba(255, 255, 255, 0.25);
+            transform: translateY(-5px) rotate(5deg);
+            box-shadow: 0 10px 25px rgba(0, 0, 0, 0.15);
+        }
+
+        .quick-control:active {
+            transform: translateY(-2px) scale(0.95);
+        }
+
+        .quick-control.active {
+            background: rgba(255, 255, 255, 0.35);
+            box-shadow: 0 4px 20px rgba(0, 0, 0, 0.1);
+            animation: pulse 2s infinite;
+        }
+
+        @keyframes pulse {
+
+            0%,
+            100% {
+                transform: translateY(0) scale(1);
+            }
+
+            50% {
+                transform: translateY(-2px) scale(1.05);
+            }
+        }
+
+        /* Modal Overlay */
+        .modal-overlay {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0, 0, 0, 0.4);
+            backdrop-filter: blur(10px);
+            display: none;
+            align-items: center;
+            justify-content: center;
+            z-index: 1000;
+            opacity: 0;
+            transition: opacity 0.3s ease;
+        }
+
+        .modal-overlay.show {
+            display: flex;
+            opacity: 1;
+        }
+
+        /* Modal Content */
+        .modal {
+            background: rgba(255, 255, 255, 0.95);
+            backdrop-filter: blur(40px);
+            border-radius: 20px;
+            padding: 30px;
+            max-width: 400px;
+            width: 90%;
+            max-height: 80vh;
+            overflow-y: auto;
+            box-shadow: 0 20px 40px rgba(0, 0, 0, 0.1);
+            border: 0.5px solid rgba(255, 255, 255, 0.3);
+        }
+
+        .modal-header {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            margin-bottom: 25px;
+            padding-bottom: 15px;
+            border-bottom: 1px solid rgba(0, 0, 0, 0.1);
+        }
+
+        .modal-title {
+            font-size: 18px;
+            font-weight: 600;
+            color: #333;
+        }
+
+        .close-btn {
+            margin-left: auto;
+            background: none;
+            border: none;
+            font-size: 20px;
+            cursor: pointer;
+            color: #666;
+            padding: 4px;
+            border-radius: 6px;
+            transition: background 0.2s ease;
+        }
+
+        .close-btn:hover {
+            background: rgba(0, 0, 0, 0.05);
+        }
+
+        /* Input Styles */
+        .input-group {
+            margin-bottom: 20px;
+        }
+
+        .input-label {
+            display: block;
+            font-size: 13px;
+            font-weight: 500;
+            color: #666;
+            margin-bottom: 6px;
+        }
+
+        .input-field {
+            width: 100%;
+            background: rgba(0, 0, 0, 0.05);
+            border: 1px solid rgba(0, 0, 0, 0.1);
+            border-radius: 10px;
+            padding: 12px 16px;
+            font-size: 14px;
+            color: #333;
+            transition: all 0.2s ease;
+        }
+
+        .input-field:focus {
+            outline: none;
+            border-color: #007AFF;
+            background: rgba(0, 122, 255, 0.05);
+        }
+
+        /* Grid Layouts */
+        .option-grid {
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);
+            gap: 12px;
+            margin-bottom: 20px;
+        }
+
+        .option-card {
+            background: rgba(0, 0, 0, 0.05);
+            border: 1px solid rgba(0, 0, 0, 0.1);
+            border-radius: 12px;
+            padding: 16px;
+            text-align: center;
+            cursor: pointer;
+            transition: all 0.2s ease;
+        }
+
+        .option-card:hover {
+            background: rgba(0, 122, 255, 0.1);
+            border-color: #007AFF;
+        }
+
+        .option-card.active {
+            background: rgba(0, 122, 255, 0.15);
+            border-color: #007AFF;
+            box-shadow: 0 2px 10px rgba(0, 122, 255, 0.2);
+        }
+
+        .option-emoji {
+            font-size: 24px;
+            margin-bottom: 8px;
+            display: block;
+        }
+
+        .option-name {
+            font-size: 12px;
+            font-weight: 500;
+            color: #666;
+        }
+
+        /* Sliders */
+        .slider-group {
+            margin-bottom: 16px;
+        }
+
+        .slider-label {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 8px;
+        }
+
+        .slider-name {
+            font-size: 13px;
+            font-weight: 500;
+            color: #666;
+        }
+
+        .slider-value {
+            font-size: 12px;
+            color: #999;
+        }
+
+        .slider {
+            width: 100%;
+            height: 4px;
+            background: rgba(0, 0, 0, 0.1);
+            border-radius: 2px;
+            outline: none;
+            appearance: none;
+            -webkit-appearance: none;
+        }
+
+        .slider::-webkit-slider-thumb {
+            -webkit-appearance: none;
+            width: 18px;
+            height: 18px;
+            background: #007AFF;
+            border-radius: 50%;
+            cursor: pointer;
+            box-shadow: 0 2px 6px rgba(0, 122, 255, 0.3);
+        }
+
+        /* Progress Ring */
+        .progress-ring {
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            width: 320px;
+            height: 320px;
+            opacity: 0.3;
+        }
+
+        .progress-ring circle {
+            width: 100%;
+            height: 100%;
+            fill: transparent;
+            stroke: white;
+            stroke-width: 2;
+            stroke-linecap: round;
+            transform: rotate(-90deg);
+            transform-origin: 50% 50%;
+        }
+
+        .progress-ring .progress {
+            stroke-dasharray: 1005.31;
+            /* 2 * π * 160 */
+            stroke-dashoffset: 1005.31;
+            transition: stroke-dashoffset 1s ease;
+        }
+
+        /* Floating Particles */
+        .particle {
+            position: absolute;
+            width: 4px;
+            height: 4px;
+            background: rgba(255, 255, 255, 0.6);
+            border-radius: 50%;
+            animation: float 6s ease-in-out infinite;
+            opacity: 0;
+        }
+
+        @keyframes float {
+
+            0%,
+            100% {
+                opacity: 0;
+                transform: translateY(0px) rotate(0deg);
+            }
+
+            10% {
+                opacity: 1;
+            }
+
+            90% {
+                opacity: 1;
+            }
+
+            50% {
+                transform: translateY(-20px) rotate(180deg);
+            }
+        }
+
+        .particle:nth-child(1) {
+            left: 20%;
+            animation-delay: 0s;
+        }
+
+        .particle:nth-child(2) {
+            left: 40%;
+            animation-delay: 1s;
+        }
+
+        .particle:nth-child(3) {
+            left: 60%;
+            animation-delay: 2s;
+        }
+
+        .particle:nth-child(4) {
+            left: 80%;
+            animation-delay: 3s;
+        }
+
+        @media (max-width: 768px) {
+            .timer-display {
+                font-size: 80px;
+                letter-spacing: -2px;
+            }
+
+            .progress-ring {
+                width: 220px;
+                height: 220px;
+            }
+
+            .container {
+                padding: 20px;
+            }
+
+            .top-controls {
+                top: 20px;
+                right: 20px;
+            }
+
+            .bottom-controls {
+                bottom: 20px;
+            }
+
+            .timer-controls {
+                gap: 12px;
+                margin-bottom: 40px;
+            }
+
+            .timer-btn {
+                padding: 14px 24px;
+                min-width: 80px;
+            }
+
+            .quick-control {
+                width: 50px;
+                height: 50px;
+                font-size: 18px;
+            }
+        }
+
+        /* Subtle animations */
+        @keyframes fadeIn {
+            from {
+                opacity: 0;
+                transform: translateY(10px);
+            }
+
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        @keyframes ripple {
+            to {
+                transform: scale(2);
+                opacity: 0;
+            }
+        }
+
+        @keyframes miniConfetti {
+            0% {
+                transform: translateY(0) rotate(0deg) scale(1);
+                opacity: 1;
+            }
+
+            100% {
+                transform: translateY(-50px) rotate(180deg) scale(0);
+                opacity: 0;
+            }
+        }
+
+        /* Widget hover effects */
+        .widget {
+            transition: all 0.3s ease;
+        }
+
+        .widget:hover {
+            transform: translateY(-2px) scale(1.02);
+            box-shadow: 0 8px 25px rgba(0, 0, 0, 0.15);
+        }
+
+        /* Responsive widget adjustments */
+        @media (max-width: 1024px) {
+            .left-widgets {
+                display: none;
+            }
+        }
+
+        @media (max-width: 768px) {
+            .left-widgets {
+                position: static;
+                flex-direction: row;
+                justify-content: center;
+                margin-bottom: 20px;
+                overflow-x: auto;
+                padding: 0 10px;
+            }
+
+            .widget {
+                min-width: 150px;
+                flex-shrink: 0;
+            }
+
+            .calendar-widget {
+                min-width: 180px;
+            }
+        }
+
+        .container>* {
+            animation: fadeIn 0.6s ease forwards;
+        }
+
+        /* Hover effects for better interactivity */
+        .container {
+            cursor: default;
+        }
+
+        .timer-display {
+            user-select: none;
+        }
+
+        /* Background animation */
+        body {
+            background-size: 400% 400%;
+            animation: backgroundShift 15s ease infinite;
+        }
+
+        @keyframes backgroundShift {
+
+            0%,
+            100% {
+                background-position: 0% 50%;
+            }
+
+            25% {
+                background-position: 100% 50%;
+            }
+
+            50% {
+                background-position: 100% 100%;
+            }
+
+            75% {
+                background-position: 0% 100%;
+            }
+        }
+
+        /* Scene-specific animations */
+        body.night-city {
+            background: linear-gradient(-45deg, #667eea, #764ba2, #f093fb, #667eea);
+        }
+
+        body.cozy-cafe {
+            background: linear-gradient(-45deg, #ffecd2, #fcb69f, #ffd89b, #19547b);
+        }
+
+        body.forest-cabin {
+            background: linear-gradient(-45deg, #a8edea, #fed6e3, #d299c2, #fef9d7);
+        }
+
+        body.minimal-desk {
+            background: linear-gradient(-45deg, #e3ffe7, #d9e7ff, #a8edea, #ffd0dc);
+        }
+    </style>
+</head>
+
+<body class="forest-cabin">
+    <img src="assets/city.gif" class="bg-gif night-city-gif" alt="Night City GIF" />
+    <img src="assets/cafe.gif" class="bg-gif cozy-cafe-gif" alt="Cozy Cafe GIF" />
+    <img src="assets/forest.gif" class="bg-gif forest-cabin-gif" alt="Forest Cabin GIF" />
+    <img src="assets/desk.gif" class="bg-gif minimal-desk-gif" alt="Study Desk GIF" />
+    <div id="ytPersistentPlayer" style="display:none;"></div>
+    <!-- Ambient Sound Audio Elements (replace src with your own files) -->
+    <audio id="rainAudio" src="assets/rain.mp3" loop></audio>
+    <audio id="thunderAudio" src="assets/thunder.mp3" loop></audio>
+    <audio id="fireAudio" src="assets/fire.mp3" loop></audio>
+    <audio id="oceanAudio" src="assets/ocean.mp3" loop></audio>
+    <div class="container">
+        <!-- Left Widgets -->
+        <div class="left-widgets">
+            <!-- Clock Widget -->
+            <div class="widget clock-widget">
+                <div class="current-time" id="currentTime">12:34 PM</div>
+                <div class="current-date" id="currentDate">Monday, Dec 16</div>
+            </div>
+
+            <!-- Calendar Widget -->
+            <div class="widget calendar-widget">
+                <div class="calendar-header">
+                    <button class="calendar-nav" onclick="previousMonth()">‹</button>
+                    <span id="currentMonth">December 2024</span>
+                    <button class="calendar-nav" onclick="nextMonth()">›</button>
+                </div>
+                <div class="calendar-grid" id="calendarGrid">
+                    <!-- Calendar days will be populated by JavaScript -->
+                </div>
+            </div>
+
+            <!-- Todo Widget -->
+            <div class="widget todo-widget">
+                <div class="todo-header">
+                    <span>Tasks</span>
+                    <button class="add-todo-btn" onclick="showAddTodo()">+</button>
+                </div>
+                <ul class="todo-list" id="todoList">
+                    <li class="todo-item">
+                        <div class="todo-checkbox" onclick="toggleTodo(this)"></div>
+                        <span class="todo-text">Complete study session</span>
+                    </li>
+                    <li class="todo-item">
+                        <div class="todo-checkbox checked" onclick="toggleTodo(this)"></div>
+                        <span class="todo-text completed">Review notes</span>
+                    </li>
+                </ul>
+                <input type="text" class="todo-input" id="todoInput" placeholder="Add a new task..."
+                    style="display: none;" onkeypress="addTodo(event)">
+            </div>
+        </div>
+        <!-- Top Controls -->
+        <div class="top-controls">
+            <div class="control-pill" onclick="openModal('scenes')">
+                <span>🎨</span>
+                <span>Scene</span>
+            </div>
+            <div class="control-pill" onclick="openModal('music')">
+                <span>🎵</span>
+                <span>Music</span>
+            </div>
+            <div class="control-pill" onclick="openModal('settings')">
+                <span>⚙️</span>
+                <span>Timer</span>
+            </div>
+        </div>
+
+
+        <div class="timer-container">
+            <svg class="progress-ring">
+                <circle cx="160" cy="160" r="160" class="progress" id="progressCircle"></circle>
+            </svg>
+            <div class="timer-display" id="timerDisplay" onclick="addClickEffect(event)">25:00</div>
+            <div class="timer-label" id="timerLabel">FOCUS TIME</div>
+
+            <!-- Floating Particles -->
+            <div class="particle"></div>
+            <div class="particle"></div>
+            <div class="particle"></div>
+            <div class="particle"></div>
+        </div>
+
+        <!-- Timer Controls -->
+        <div class="timer-controls">
+            <button class="timer-btn primary" id="playBtn">Start</button>
+            <button class="timer-btn" id="pauseBtn">Pause</button>
+            <button class="timer-btn" id="resetBtn">Reset</button>
+        </div>
+
+        <!-- Bottom Quick Controls -->
+        <div class="bottom-controls">
+            <div class="quick-control" onclick="toggleAmbient('rain')" title="Rain">🌧️</div>
+            <div class="quick-control" onclick="toggleAmbient('thunder')" title="Thunder">⛈️</div>
+            <div class="quick-control" onclick="toggleAmbient('fire')" title="Fire">🔥</div>
+            <div class="quick-control" onclick="toggleAmbient('ocean')" title="Ocean">🌊</div>
+        </div>
+    </div>
+
+    <!-- Modal Overlay -->
+    <div class="modal-overlay" id="modalOverlay" onclick="closeModal()">
+        <div class="modal" onclick="event.stopPropagation()">
+            <div class="modal-header">
+                <span id="modalIcon">🎨</span>
+                <span class="modal-title" id="modalTitle">Background Scenes</span>
+                <button class="close-btn" onclick="closeModal()">✕</button>
+            </div>
+            <div id="modalContent"></div>
+        </div>
+    </div>
+
+    <script>
+        // Timer State
+        let timeLeft = 25 * 60;
+        let isRunning = false;
+        let timerInterval;
+        let currentMode = 'work';
+        let workTime = 25;
+        let breakTime = 5;
+
+        // Audio State
+        let activeAmbients = new Set();
+        let ambientVolume = 0.5;
+        let currentScene = 'night-city';
+        let currentCalendarDate = new Date();
+        let todos = [
+            { id: 1, text: 'Complete study session', completed: false },
+            { id: 2, text: 'Review notes', completed: true }
+        ];
+
+        // Initialize
+        document.addEventListener('DOMContentLoaded', function () {
+            loadTodos();
+            updateTimerDisplay();
+            updateClock();
+            updateCalendar();
+            updateTodoList();
+            setInterval(updateClock, 1000);
+        });
+
+        // Clock Functions
+        function updateClock() {
+            const now = new Date();
+            const timeString = now.toLocaleTimeString('en-US', {
+                hour: 'numeric',
+                minute: '2-digit',
+                hour12: true
+            });
+            const dateString = now.toLocaleDateString('en-US', {
+                weekday: 'long',
+                month: 'short',
+                day: 'numeric'
+            });
+
+            document.getElementById('currentTime').textContent = timeString;
+            document.getElementById('currentDate').textContent = dateString;
+        }
+
+        // Calendar Functions
+        function updateCalendar() {
+            const year = currentCalendarDate.getFullYear();
+            const month = currentCalendarDate.getMonth();
+            const today = new Date();
+
+            // Update header
+            document.getElementById('currentMonth').textContent =
+                currentCalendarDate.toLocaleDateString('en-US', { month: 'long', year: 'numeric' });
+
+            // Clear grid
+            const grid = document.getElementById('calendarGrid');
+            grid.innerHTML = '';
+
+            // Add day headers
+            const dayHeaders = ['S', 'M', 'T', 'W', 'T', 'F', 'S'];
+            dayHeaders.forEach(day => {
+                const dayElement = document.createElement('div');
+                dayElement.className = 'calendar-day';
+                dayElement.style.fontWeight = '600';
+                dayElement.style.fontSize = '10px';
+                dayElement.style.opacity = '0.6';
+                dayElement.textContent = day;
+                grid.appendChild(dayElement);
+            });
+
+            // Get first day of month and number of days
+            const firstDay = new Date(year, month, 1).getDay();
+            const daysInMonth = new Date(year, month + 1, 0).getDate();
+            const daysInPrevMonth = new Date(year, month, 0).getDate();
+
+            // Add previous month's trailing days
+            for (let i = firstDay - 1; i >= 0; i--) {
+                const dayElement = document.createElement('div');
+                dayElement.className = 'calendar-day other-month';
+                dayElement.textContent = daysInPrevMonth - i;
+                grid.appendChild(dayElement);
+            }
+
+            // Add current month's days
+            for (let day = 1; day <= daysInMonth; day++) {
+                const dayElement = document.createElement('div');
+                dayElement.className = 'calendar-day';
+
+                // Highlight today
+                if (year === today.getFullYear() &&
+                    month === today.getMonth() &&
+                    day === today.getDate()) {
+                    dayElement.classList.add('today');
+                }
+
+                dayElement.textContent = day;
+                grid.appendChild(dayElement);
+            }
+
+            // Add next month's leading days
+            const totalCells = grid.children.length;
+            const remainingCells = 42 - totalCells; // 6 rows × 7 days
+            for (let day = 1; day <= remainingCells && totalCells < 42; day++) {
+                const dayElement = document.createElement('div');
+                dayElement.className = 'calendar-day other-month';
+                dayElement.textContent = day;
+                grid.appendChild(dayElement);
+            }
+        }
+
+        function previousMonth() {
+            currentCalendarDate.setMonth(currentCalendarDate.getMonth() - 1);
+            updateCalendar();
+        }
+
+        function nextMonth() {
+            currentCalendarDate.setMonth(currentCalendarDate.getMonth() + 1);
+            updateCalendar();
+        }
+
+        // Todo Functions
+        // Load todos from localStorage
+        function loadTodos() {
+            const saved = localStorage.getItem('todos');
+            if (saved) {
+                try {
+                    todos = JSON.parse(saved);
+                } catch (e) {
+                    todos = [
+                        { id: 1, text: 'Complete study session', completed: false },
+                        { id: 2, text: 'Review notes', completed: true }
+                    ];
+                }
+            }
+        }
+
+        // Save todos to localStorage
+        function saveTodos() {
+            localStorage.setItem('todos', JSON.stringify(todos));
+        }
+
+        // Update updateTodoList to save after changes
+        function updateTodoList() {
+            const todoList = document.getElementById('todoList');
+            todoList.innerHTML = '';
+            todos.forEach(todo => {
+                const li = document.createElement('li');
+                li.className = 'todo-item';
+                li.innerHTML = `
+                    <div class="todo-checkbox ${todo.completed ? 'checked' : ''}" onclick="toggleTodo(${todo.id})"></div>
+                    <span class="todo-text ${todo.completed ? 'completed' : ''}">${todo.text}</span>
+                `;
+                todoList.appendChild(li);
+            });
+            saveTodos();
+        }
+
+        function toggleTodo(todoId) {
+            const todo = todos.find(t => t.id === todoId);
+            if (todo) {
+                todo.completed = !todo.completed;
+                updateTodoList();
+                if (todo.completed) {
+                    createMiniCelebration();
+                }
+                saveTodos();
+            }
+        }
+
+        function showAddTodo() {
+            const input = document.getElementById('todoInput');
+            input.style.display = 'block';
+            input.focus();
+        }
+
+        function addTodo(event) {
+            if (event.key === 'Enter') {
+                const input = event.target;
+                const text = input.value.trim();
+                if (text) {
+                    const newTodo = {
+                        id: Date.now(),
+                        text: text,
+                        completed: false
+                    };
+                    todos.push(newTodo);
+                    updateTodoList();
+                    input.value = '';
+                    input.style.display = 'none';
+                    saveTodos();
+                }
+            }
+            if (event.key === 'Escape') {
+                event.target.style.display = 'none';
+                event.target.value = '';
+            }
+        }
+
+        function createMiniCelebration() {
+            for (let i = 0; i < 5; i++) {
+                setTimeout(() => {
+                    const particle = document.createElement('div');
+                    particle.style.position = 'fixed';
+                    particle.style.left = '280px';
+                    particle.style.top = '200px';
+                    particle.style.width = '6px';
+                    particle.style.height = '6px';
+                    particle.style.backgroundColor = `hsl(${Math.random() * 360}, 70%, 60%)`;
+                    particle.style.borderRadius = '50%';
+                    particle.style.pointerEvents = 'none';
+                    particle.style.zIndex = '1000';
+                    particle.style.animation = `miniConfetti ${1 + Math.random()}s ease-out forwards`;
+
+                    document.body.appendChild(particle);
+
+                    setTimeout(() => particle.remove(), 2000);
+                }, i * 50);
+            }
+        }
+
+        // Timer Functions
+        function updateTimerDisplay() {
+            const minutes = Math.floor(timeLeft / 60);
+            const seconds = timeLeft % 60;
+            document.getElementById('timerDisplay').textContent =
+                `${minutes.toString().padStart(2, '0')}:${seconds.toString().padStart(2, '0')}`;
+        }
+
+        function startTimer() {
+            if (!isRunning) {
+                isRunning = true;
+                document.getElementById('playBtn').textContent = 'Running...';
+                document.getElementById('timerDisplay').classList.add('running');
+
+                timerInterval = setInterval(() => {
+                    timeLeft--;
+                    updateTimerDisplay();
+                    updateProgressRing();
+
+                    // Add urgency effect when under 5 minutes
+                    if (timeLeft <= 300 && timeLeft > 0) {
+                        document.getElementById('timerDisplay').classList.add('urgent');
+                    }
+
+                    if (timeLeft <= 0) {
+                        clearInterval(timerInterval);
+                        isRunning = false;
+                        document.getElementById('playBtn').textContent = 'Start';
+                        document.getElementById('timerDisplay').classList.remove('running', 'urgent');
+
+                        // Play notification and create celebration effect
+                        playNotification();
+                        createCelebration();
+
+                        // Switch modes
+                        if (currentMode === 'work') {
+                            currentMode = 'break';
+                            timeLeft = breakTime * 60;
+                            document.getElementById('timerLabel').textContent = 'BREAK TIME';
+                            document.getElementById('timerLabel').classList.add('break-mode');
+                        } else {
+                            currentMode = 'work';
+                            timeLeft = workTime * 60;
+                            document.getElementById('timerLabel').textContent = 'FOCUS TIME';
+                            document.getElementById('timerLabel').classList.remove('break-mode');
+                        }
+                        updateTimerDisplay();
+                        updateProgressRing();
+                    }
+                }, 1000);
+            }
+        }
+
+        function pauseTimer() {
+            if (isRunning) {
+                clearInterval(timerInterval);
+                isRunning = false;
+                document.getElementById('playBtn').textContent = 'Start';
+                document.getElementById('timerDisplay').classList.remove('running');
+            }
+        }
+
+        function resetTimer() {
+            clearInterval(timerInterval);
+            isRunning = false;
+            currentMode = 'work';
+            timeLeft = workTime * 60;
+            document.getElementById('timerLabel').textContent = 'FOCUS TIME';
+            document.getElementById('timerLabel').classList.remove('break-mode');
+            document.getElementById('playBtn').textContent = 'Start';
+            document.getElementById('timerDisplay').classList.remove('running', 'urgent');
+            updateTimerDisplay();
+            updateProgressRing();
+        }
+
+        function updateProgressRing() {
+            const totalTime = currentMode === 'work' ? workTime * 60 : breakTime * 60;
+            const progress = ((totalTime - timeLeft) / totalTime) * 1005.31;
+            document.getElementById('progressCircle').style.strokeDashoffset = 1005.31 - progress;
+        }
+
+        function addClickEffect(e) {
+            const ripple = document.createElement('div');
+            ripple.style.position = 'absolute';
+            ripple.style.borderRadius = '50%';
+            ripple.style.background = 'rgba(255, 255, 255, 0.6)';
+            ripple.style.transform = 'scale(0)';
+            ripple.style.animation = 'ripple 0.6s linear';
+            ripple.style.left = (e.clientX - e.target.getBoundingClientRect().left - 25) + 'px';
+            ripple.style.top = (e.clientY - e.target.getBoundingClientRect().top - 25) + 'px';
+            ripple.style.width = '50px';
+            ripple.style.height = '50px';
+
+            e.target.style.position = 'relative';
+            e.target.appendChild(ripple);
+
+            setTimeout(() => {
+                ripple.remove();
+            }, 600);
+        }
+
+        function createCelebration() {
+            for (let i = 0; i < 20; i++) {
+                setTimeout(() => {
+                    const confetti = document.createElement('div');
+                    confetti.style.position = 'fixed';
+                    confetti.style.left = Math.random() * window.innerWidth + 'px';
+                    confetti.style.top = '-10px';
+                    confetti.style.width = '10px';
+                    confetti.style.height = '10px';
+                    confetti.style.backgroundColor = `hsl(${Math.random() * 360}, 70%, 60%)`;
+                    confetti.style.borderRadius = '50%';
+                    confetti.style.pointerEvents = 'none';
+                    confetti.style.zIndex = '1000';
+                    confetti.style.animation = `confettiFall ${2 + Math.random() * 3}s ease-out forwards`;
+
+                    document.body.appendChild(confetti);
+
+                    setTimeout(() => {
+                        confetti.remove();
+                    }, 5000);
+                }, i * 100);
+            }
+        }
+
+        function playNotification() {
+            const audioContext = new (window.AudioContext || window.webkitAudioContext)();
+            const oscillator = audioContext.createOscillator();
+            const gainNode = audioContext.createGain();
+
+            oscillator.connect(gainNode);
+            gainNode.connect(audioContext.destination);
+
+            oscillator.frequency.value = 800;
+            oscillator.type = 'sine';
+
+            gainNode.gain.setValueAtTime(0.3, audioContext.currentTime);
+            gainNode.gain.exponentialRampToValueAtTime(0.01, audioContext.currentTime + 0.8);
+
+            oscillator.start(audioContext.currentTime);
+            oscillator.stop(audioContext.currentTime + 0.8);
+        }
+
+        // Modal Functions
+        function openModal(type) {
+            const modal = document.getElementById('modalOverlay');
+            const icon = document.getElementById('modalIcon');
+            const title = document.getElementById('modalTitle');
+            const content = document.getElementById('modalContent');
+
+            modal.classList.add('show');
+            // Hide scrollbar when music or timer modal is open
+            if (type === 'music' || type === 'settings') {
+                document.body.classList.add('modal-open');
+            }
+
+            switch (type) {
+                case 'scenes':
+                    icon.textContent = '🎨';
+                    title.textContent = 'Background Scenes';
+                    content.innerHTML = getScenesContent();
+                    break;
+                case 'music':
+                    icon.textContent = '🎵';
+                    title.textContent = 'Music & Sounds';
+                    content.innerHTML = getMusicContent();
+                    break;
+                case 'settings':
+                    icon.textContent = '⚙️';
+                    title.textContent = 'Timer Settings';
+                    content.innerHTML = getSettingsContent();
+                    break;
+            }
+        }
+
+        function closeModal() {
+            document.getElementById('modalOverlay').classList.remove('show');
+            // Restore scrollbar when modal is closed
+            document.body.classList.remove('modal-open');
+        }
+
+        function getScenesContent() {
+            return `
+                <div class="option-grid">
+                    <div class="option-card ${currentScene === 'night-city' ? 'active' : ''}" onclick="changeScene('night-city')">
+                        <span class="option-emoji">🌃</span>
+                        <span class="option-name">Night City</span>
+                    </div>
+                    <div class="option-card ${currentScene === 'cozy-cafe' ? 'active' : ''}" onclick="changeScene('cozy-cafe')">
+                        <span class="option-emoji">☕</span>
+                        <span class="option-name">Cozy Café</span>
+                    </div>
+                    <div class="option-card ${currentScene === 'forest-cabin' ? 'active' : ''}" onclick="changeScene('forest-cabin')">
+                        <span class="option-emoji">🏕️</span>
+                        <span class="option-name">Forest Cabin</span>
+                    </div>
+                    <div class="option-card ${currentScene === 'minimal-desk' ? 'active' : ''}" onclick="changeScene('minimal-desk')">
+                        <span class="option-emoji">💻</span>
+                        <span class="option-name">Study Desk</span>
+                    </div>
+                </div>
+            `;
+        }
+
+        let ytVideoId = '';
+        function getMusicContent() {
+            return `
+                <div class="input-group">
+                    <label class="input-label">YouTube URL</label>
+                    <input type="text" class="input-field" placeholder="Paste YouTube link of your favorite lofi beats..." id="youtubeInput">
+                    <button class="timer-btn primary" style="margin-top:10px;" onclick="embedYouTube()">Embed</button>
+                </div>
+                <div id="ytPlayerControls" style="margin:10px 0;display:flex;gap:10px;">
+                    ${ytVideoId ? `
+                        <button class='timer-btn' onclick='playYT()'>Start</button>
+                        <button class='timer-btn' onclick='pauseYT()'>Stop</button>
+                    ` : ''}
+                </div>
+                <div class="option-grid">
+                    <div class="option-card ${activeAmbients.has('rain') ? 'active' : ''}" onclick="toggleAmbientModal('rain')">
+                        <span class="option-emoji">🌧️</span>
+                        <span class="option-name">Rain</span>
+                    </div>
+                    <div class="option-card ${activeAmbients.has('thunder') ? 'active' : ''}" onclick="toggleAmbientModal('thunder')">
+                        <span class="option-emoji">⛈️</span>
+                        <span class="option-name">Thunder</span>
+                    </div>
+                    <div class="option-card ${activeAmbients.has('fire') ? 'active' : ''}" onclick="toggleAmbientModal('fire')">
+                        <span class="option-emoji">🔥</span>
+                        <span class="option-name">Fireplace</span>
+                    </div>
+                    <div class="option-card ${activeAmbients.has('ocean') ? 'active' : ''}" onclick="toggleAmbientModal('ocean')">
+                        <span class="option-emoji">🌊</span>
+                        <span class="option-name">Ocean</span>
+                    </div>
+                </div>
+                <div class="slider-group">
+                    <div class="slider-label">
+                        <span class="slider-name">Sound Effects Volume</span>
+                        <span class="slider-value" id="ambientVolumeValue">${Math.round(ambientVolume * 100)}%</span>
+                    </div>
+                    <input type="range" class="slider" min="0" max="100" value="${Math.round(ambientVolume * 100)}" id="ambientVolumeSlider" oninput="setAmbientVolume(this.value)">
+                </div>
+            `;
+        }
+
+        function embedYouTube() {
+            const url = document.getElementById('youtubeInput').value.trim();
+            let videoId = '';
+            // Extract video ID from various YouTube URL formats
+            if (url.includes('youtube.com/watch?v=')) {
+                videoId = url.split('v=')[1].split('&')[0];
+            } else if (url.includes('youtu.be/')) {
+                videoId = url.split('youtu.be/')[1].split('?')[0];
+            } else if (url.match(/^[a-zA-Z0-9_-]{11}$/)) {
+                videoId = url;
+            }
+            ytVideoId = videoId;
+            // Only create iframe if not already present or videoId changed
+            let playerDiv = document.getElementById('ytPersistentPlayer');
+            playerDiv.innerHTML = `<iframe id='ytPlayer' width='0' height='0' style='display:none;' src='https://www.youtube.com/embed/${ytVideoId}?enablejsapi=1' frameborder='0' allow='autoplay; encrypted-media' allowfullscreen></iframe>`;
+            document.getElementById('modalContent').innerHTML = getMusicContent();
+        }
+
+        function playYT() {
+            const iframe = document.getElementById('ytPlayer');
+            if (iframe) iframe.contentWindow.postMessage('{"event":"command","func":"playVideo","args":""}', '*');
+        }
+        function pauseYT() {
+            const iframe = document.getElementById('ytPlayer');
+            if (iframe) iframe.contentWindow.postMessage('{"event":"command","func":"pauseVideo","args":""}', '*');
+        }
+
+        function getSettingsContent() {
+            return `
+                <div class="slider-group">
+                    <div class="slider-label">
+                        <span class="slider-name">Focus Time</span>
+                        <span class="slider-value" id="workTimeValue">${workTime} min</span>
+                    </div>
+                    <input type="range" class="slider" min="5" max="60" value="${workTime}" id="workTimeSlider" oninput="updateWorkTime(this.value)">
+                </div>
+
+                <div class="slider-group">
+                    <div class="slider-label">
+                        <span class="slider-name">Break Time</span>
+                        <span class="slider-value" id="breakTimeValue">${breakTime} min</span>
+                    </div>
+                    <input type="range" class="slider" min="1" max="15" value="${breakTime}" id="breakTimeSlider" oninput="updateBreakTime(this.value)">
+                </div>
+
+                <div class="option-grid">
+                    <div class="option-card" onclick="setQuickTimer(15)">
+                        <span class="option-emoji">⚡</span>
+                        <span class="option-name">Quick (15min)</span>
+                    </div>
+                    <div class="option-card" onclick="setQuickTimer(25)">
+                        <span class="option-emoji">🎯</span>
+                        <span class="option-name">Focus (25min)</span>
+                    </div>
+                    <div class="option-card" onclick="setQuickTimer(45)">
+                        <span class="option-emoji">🚀</span>
+                        <span class="option-name">Deep (45min)</span>
+                    </div>
+                    <div class="option-card" onclick="setQuickTimer(90)">
+                        <span class="option-emoji">🏔️</span>
+                        <span class="option-name">Ultra (90min)</span>
+                    </div>
+                </div>
+            `;
+        }
+
+        // Scene Functions
+        function changeScene(scene) {
+            document.body.className = scene;
+            currentScene = scene;
+
+            // Update active state in modal
+            document.querySelectorAll('.option-card').forEach(card => {
+                card.classList.remove('active');
+            });
+            event.target.classList.add('active');
+        }
+
+        // Ambient Functions
+        function toggleAmbient(sound) {
+            const element = document.querySelector(`[title="${sound.charAt(0).toUpperCase() + sound.slice(1)}"]`);
+            const audioMap = {
+                rain: document.getElementById('rainAudio'),
+                thunder: document.getElementById('thunderAudio'),
+                fire: document.getElementById('fireAudio'),
+                ocean: document.getElementById('oceanAudio')
+            };
+            const audio = audioMap[sound];
+            if (activeAmbients.has(sound)) {
+                activeAmbients.delete(sound);
+                element.classList.remove('active');
+                if (audio) audio.pause();
+            } else {
+                activeAmbients.add(sound);
+                element.classList.add('active');
+                if (audio) {
+                    audio.volume = ambientVolume;
+                    audio.currentTime = 0;
+                    audio.play();
+                }
+            }
+        }
+        function setAmbientVolume(val) {
+            ambientVolume = parseInt(val) / 100;
+            document.getElementById('ambientVolumeValue').textContent = Math.round(ambientVolume * 100) + '%';
+            ['rainAudio', 'thunderAudio', 'fireAudio', 'oceanAudio'].forEach(id => {
+                const audio = document.getElementById(id);
+                if (audio) audio.volume = ambientVolume;
+            });
+        }
+
+        function toggleAmbientModal(sound) {
+            toggleAmbient(sound);
+            // Update modal content
+            event.target.classList.toggle('active');
+        }
+
+        // Settings Functions
+        function updateWorkTime(value) {
+            workTime = parseInt(value);
+            document.getElementById('workTimeValue').textContent = workTime + ' min';
+            if (!isRunning && currentMode === 'work') {
+                timeLeft = workTime * 60;
+                updateTimerDisplay();
+            }
+        }
+
+        function updateBreakTime(value) {
+            breakTime = parseInt(value);
+            document.getElementById('breakTimeValue').textContent = breakTime + ' min';
+        }
+
+        function setQuickTimer(minutes) {
+            workTime = minutes;
+            timeLeft = minutes * 60;
+            currentMode = 'work';
+            resetTimer();
+            closeModal();
+        }
+
+        // Event Listeners
+        document.getElementById('playBtn').addEventListener('click', startTimer);
+        document.getElementById('pauseBtn').addEventListener('click', pauseTimer);
+        document.getElementById('resetBtn').addEventListener('click', resetTimer);
+
+        // Keyboard shortcuts
+        document.addEventListener('keydown', function (e) {
+            if (e.key === ' ' && e.target.tagName !== 'INPUT') {
+                e.preventDefault();
+                if (isRunning) pauseTimer(); else startTimer();
+            }
+            if (e.key === 'Escape') closeModal();
+        });
+    </script>
+</body>
+
+</html>

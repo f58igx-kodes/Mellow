@@ -1,20 +1,20 @@
 # Melllow 🎧✨
 
-Melllow is a productivity-focused web app designed to help you study or work in a calm, immersive environment.  
-It combines a Pomodoro timer, ambient sounds, and aesthetic themes with smooth animations — all in your browser.
+Melllow is a productivity focused web app designed to help you study or work in a calm, immersive environment.  
+It combines a Pomodoro timer, ambient sounds, and aesthetic themes with smooth animations all in your browser.
 
 
-
-
+&nbsp;
 
 ## 🚀 Features
 
 ### 🎨 Dynamic Background Themes
 Choose from 4 animated scenes:
-- **Night City** – Purple-blue gradient with a city GIF
-- **Cozy Café** – Warm orange tones with a café GIF
-- **Forest Cabin** – Pastel teal-pink gradient with a forest GIF
-- **Minimal Desk** – Light green-blue tones with a desk GIF
+
+- **Night City**
+- **Cozy Café**
+- **Forest Cabin**
+- **Minimal Desk**
 
 ### ⏳ Pomodoro Timer
 - Focus & break sessions (customizable)

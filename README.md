@@ -3,7 +3,7 @@
 Melllow is a productivity focused web app designed to help you study or work in a calm, immersive environment.  
 It combines a Pomodoro timer, ambient sounds, and aesthetic themes with smooth animations all in your browser.
 
-[![Live Demo](https://img.shields.io/badge/Live%20Demo-Textura-darkgreen?style=for-the-badge)](https://f58igx-kodes.github.io/Mellow/)
+[![Live Demo](https://img.shields.io/badge/Live%20Demo-Mellow-darkgreen?style=for-the-badge)](https://f58igx-kodes.github.io/Mellow/)
 
 
 
